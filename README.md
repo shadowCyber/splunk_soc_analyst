@@ -1,6 +1,6 @@
-# Splunk SOC Triage App (SHC Bundle Ready)
+# Splunk Cyber Defense Triage App (SHC Bundle Ready)
 
-This repository contains a starter Splunk app designed for SOC analysts to triage and prioritize alerts.
+This repository contains a starter Splunk app designed for cyber defense analysts to triage and prioritize alerts.
 
 ## App location
 
@@ -47,7 +47,7 @@ From your deployer host:
    - `$SPLUNK_HOME/bin/splunk btool check --debug`
 3. Apply the SHC bundle:
    - `$SPLUNK_HOME/bin/splunk apply shcluster-bundle -target https://<captain>:8089 -auth <user>:<pass>`
-4. In Splunk Web, verify app visibility and open **SOC Triage** dashboard.
+4. In Splunk Web, verify app visibility and open **Cyber Defense Triage** dashboard.
 
 ## Next hardening steps
 
