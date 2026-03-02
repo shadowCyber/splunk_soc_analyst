@@ -24,6 +24,9 @@ etc/shcluster/apps/*/*.local
 *.swp
 *.swo
 
+# Local setup notes — personal reference, not for repo
+GITHUB_SETUP.md
+
 # Secrets / credentials — never commit these
 **/passwords.conf
 **/authentication.conf
