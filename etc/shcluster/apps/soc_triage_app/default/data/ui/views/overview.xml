@@ -115,7 +115,8 @@
                 <li><b>Triage Dashboard</b> &#x2014; Alert queue, SLA status, bulk triage</li>
                 <li><b>Alert Detail</b> &#x2014; Per-alert enrichment and triage form</li>
                 <li><b>Analyst Metrics</b> &#x2014; KPIs, MTTA, leaderboard, volume trends</li>
-                <li><b>Suppressions</b> &#x2014; Create / manage / preview suppression rules</li>
+                <li><b>Suppression Manager</b> &#x2014; Create / manage / preview suppression rules</li>
+                <li><b>Runbooks</b> &#x2014; Browse, create, and import Markdown playbooks</li>
               </ul>
             </div>
 
@@ -138,22 +139,24 @@
           <div class="ov-card" style="margin-bottom:16px;">
             <h3>&#x23F0; Scheduled Searches</h3>
             <ul style="column-count:2;column-gap:40px;">
-              <li><b>SOC High-Risk Alert Alert</b> &#x2014; Fires when risk_score &#x2265; 80, every 5 min</li>
-              <li><b>SOC Stale Alert Reassignment</b> &#x2014; Flags alerts unowned for 6+ hours</li>
-              <li><b>SOC SLA Breach Alert</b> &#x2014; Detects sla_due exceeded, hourly</li>
-              <li><b>SOC Auto-Close Suppressed</b> &#x2014; Closes alerts matching active suppression rules, every 15 min</li>
-              <li><b>SOC Daily Shift Report</b> &#x2014; Daily summary email-ready report, 07:00</li>
+              <li><b>High-Risk Alert</b> &#x2014; Fires when risk_score &#x2265; 80, every 5 min</li>
+              <li><b>Stale Alert Reassignment</b> &#x2014; Flags alerts unowned for 6+ hours</li>
+              <li><b>SLA Breach Alert</b> &#x2014; Detects sla_due exceeded, hourly</li>
+              <li><b>Auto-Close Suppressed</b> &#x2014; Closes alerts matching active suppression rules, every 15 min</li>
+              <li><b>Daily Shift Report</b> &#x2014; Daily summary email-ready report, 07:00</li>
             </ul>
           </div>
 
           <!-- Quick-start links -->
           <div style="border-top:1px solid #3c3c4e;padding-top:16px;">
             <span style="color:#868e96;font-size:13px;margin-right:12px;">Get started &#x2192;</span>
-            <a class="ov-btn primary" href="/app/soc_triage_app/triage_dashboard">&#x1F4CB; Triage Queue</a>
+            <a class="ov-btn primary" href="/app/soc_triage_app/triage_dashboard">&#x1F4CB; Triage Dashboard</a>
             &#160;
             <a class="ov-btn secondary" href="/app/soc_triage_app/analyst_metrics">&#x1F4CA; Analyst Metrics</a>
             &#160;
-            <a class="ov-btn secondary" href="/app/soc_triage_app/suppression">&#x1F6AB; Suppressions</a>
+            <a class="ov-btn secondary" href="/app/soc_triage_app/suppression">&#x1F6AB; Suppression Manager</a>
+            &#160;
+            <a class="ov-btn secondary" href="/app/soc_triage_app/runbooks">&#x1F4D6; Runbooks</a>
           </div>
 
         </div>
