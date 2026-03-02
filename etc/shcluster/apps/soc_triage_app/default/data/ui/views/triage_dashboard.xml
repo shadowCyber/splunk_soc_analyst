@@ -1,5 +1,5 @@
 <dashboard version="1.1" theme="dark">
-  <label>SOC Triage Dashboard</label>
+  <label>Triage Dashboard</label>
   <description>Active alert queue &#x2014; filter by tier, severity, or owner. Click any row to open Alert Detail.</description>
   <refresh>300</refresh>
 
