@@ -1,0 +1,31 @@
+# Splunk local/private configs (machine-specific, contain passwords)
+etc/shcluster/apps/*/local/
+etc/shcluster/apps/*/*.local
+**/.splunk/
+**/local.meta
+
+# Splunk generated / compiled files
+**/__pycache__/
+**/*.pyc
+**/*.pyo
+**/dispatch/
+**/fishbucket/
+**/kvstore/
+**/var/
+
+# macOS
+.DS_Store
+**/.DS_Store
+._*
+
+# Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Secrets / credentials — never commit these
+**/passwords.conf
+**/authentication.conf
+**/.env
+**/*.secret

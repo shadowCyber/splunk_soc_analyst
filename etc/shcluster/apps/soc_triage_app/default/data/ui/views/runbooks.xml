@@ -1,0 +1,338 @@
+<form version="1.1" theme="dark">
+  <label>SOC Runbooks</label>
+  <description>Browse, create, and manage SOC playbooks and runbooks. Paste Markdown content directly — rendered in real-time.</description>
+
+  <fieldset submitButton="false" autoRun="true">
+    <input type="dropdown" token="rb_category_filter" searchWhenChanged="true">
+      <label>Category</label>
+      <choice value="*">All Categories</choice>
+      <choice value="phishing">Phishing</choice>
+      <choice value="malware">Malware</choice>
+      <choice value="ransomware">Ransomware</choice>
+      <choice value="insider_threat">Insider Threat</choice>
+      <choice value="lateral_movement">Lateral Movement</choice>
+      <choice value="data_exfiltration">Data Exfiltration</choice>
+      <choice value="privilege_escalation">Privilege Escalation</choice>
+      <choice value="c2">C2 / Beacon</choice>
+      <choice value="vuln_exploit">Vuln Exploit</choice>
+      <choice value="general">General</choice>
+      <default>*</default>
+    </input>
+    <input type="dropdown" token="rb_severity_filter" searchWhenChanged="true">
+      <label>Severity Scope</label>
+      <choice value="*">All Severity</choice>
+      <choice value="critical">Critical</choice>
+      <choice value="high">High</choice>
+      <choice value="medium">Medium</choice>
+      <choice value="low">Low</choice>
+      <default>*</default>
+    </input>
+    <input type="text" token="rb_search" searchWhenChanged="true">
+      <label>Search</label>
+      <default></default>
+    </input>
+  </fieldset>
+
+  <!-- dark theme CSS row -->
+  <row>
+    <panel>
+      <html>
+        <style>
+          body,.appBackground,#view,#content,.main-content-body,.splunk-components,.shared-page-chrome,
+          .dashboard-body,.dashboard-row .dashboard-cell,.page-content{background-color:#1a1a24!important;color:#c7d0dd!important}
+          .dashboard-panel,.panel-body,.panel-head{background-color:#23232f!important;color:#c7d0dd!important;border-color:#3c3c4e!important}
+          .panel-head h3{color:#a9b7c6!important;font-size:13px!important;letter-spacing:.3px;}
+          thead th,.table th{background-color:#2c2c3a!important;color:#8be0f7!important;border-color:#3c3c4e!important;font-size:12px!important;}
+          .splunk-table tbody td,.table tbody td{color:#c7d0dd!important;background-color:#23232f!important;border-color:#3c3c4e!important;font-size:12px!important;}
+          .splunk-table tbody tr:nth-child(even) td{background-color:#1f1f2e!important}
+          .splunk-table tbody tr:hover td{background-color:#2a3a52!important;cursor:pointer;}
+          .fieldset,.dashboard-fieldset,.splunk-textinput input,.splunk-dropdown .btn,.btn-default,.control-group .controls input,select{background-color:#2c2c3a!important;color:#c7d0dd!important;border-color:#4a4a5e!important;}
+          .shared-appnav,.appbar,.navbar,.navbar-default{background-color:#13131a!important;border-bottom-color:#2a2a3a!important;}
+          .shared-appnav a,.navbar a{color:#8be0f7!important;}
+          .highcharts-plot-background,.highcharts-background{fill:#1f1f2e!important;}
+          .highcharts-axis-labels text,.highcharts-axis text,.highcharts-legend-item text{fill:#a9b7c6!important;}
+          .highcharts-grid-line{stroke:#2c2c3a!important;}
+          .shared-singlevalue .number{color:#8be0f7!important;}
+          .shared-description,.description{color:#868e96!important;font-size:12px!important;}
+          .splunk-list-accordion .accordion-heading a,.splunk-list-accordion .accordion-group{background:#23232f!important;color:#c7d0dd!important;border-color:#3c3c4e!important;}
+          ::-webkit-scrollbar{background:#1a1a24;width:6px;height:6px;}
+          ::-webkit-scrollbar-thumb{background:#3c3c4e;border-radius:3px;}
+        </style>
+      </html>
+    </panel>
+  </row>
+
+  <!-- KPI strip -->
+  <row>
+    <panel>
+      <title>Total Runbooks</title>
+      <single>
+        <search>
+          <query>| inputlookup soc_runbooks | where active="true" | stats count</query>
+          <earliest>-1m</earliest><latest>now</latest>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="underLabel">published</option>
+      </single>
+    </panel>
+    <panel>
+      <title>Categories</title>
+      <single>
+        <search>
+          <query>| inputlookup soc_runbooks | where active="true" | stats dc(category)</query>
+          <earliest>-1m</earliest><latest>now</latest>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="underLabel">unique categories</option>
+      </single>
+    </panel>
+    <panel>
+      <title>Critical / High Coverage</title>
+      <single>
+        <search>
+          <query>| inputlookup soc_runbooks | where active="true" AND (severity_scope="critical" OR severity_scope="high") | stats count</query>
+          <earliest>-1m</earliest><latest>now</latest>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="underLabel">high-severity playbooks</option>
+      </single>
+    </panel>
+    <panel>
+      <title>Last Updated</title>
+      <single>
+        <search>
+          <query>| inputlookup soc_runbooks | where active="true" | stats max(last_updated) as lu | eval lu=strftime(strptime(lu,"%Y-%m-%dT%H:%M:%SZ"),"%b %d") | rename lu as count</query>
+          <earliest>-1m</earliest><latest>now</latest>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="underLabel">most recent edit</option>
+      </single>
+    </panel>
+  </row>
+
+  <!-- Main viewer -->
+  <row>
+    <panel>
+      <html>
+        <!-- marked.js bundled in app static -->
+        <script src="/static/app/soc_triage_app/marked.min.js"></script>
+
+        <style>
+          /* Layout */
+          #rb-wrap{display:flex;flex-direction:column;gap:0;}
+          #rb-container{display:flex;gap:0;height:calc(100vh - 300px);min-height:520px;border:1px solid #3c3c4e;border-radius:6px;overflow:hidden;}
+
+          /* Left list */
+          #rb-list{width:280px;min-width:240px;background:#1e1e2e;border-right:1px solid #3c3c4e;overflow-y:auto;flex-shrink:0;display:flex;flex-direction:column;}
+          #rb-list-header{padding:9px 14px;background:#13131a;border-bottom:1px solid #3c3c4e;font-size:11px;color:#8be0f7;font-weight:700;text-transform:uppercase;letter-spacing:.5px;display:flex;justify-content:space-between;align-items:center;flex-shrink:0;}
+          #rb-list-count{color:#4dabf7;font-size:13px;font-weight:700;}
+          #rb-list-items{flex:1;overflow-y:auto;}
+          .rb-item{padding:11px 14px;border-bottom:1px solid #252535;cursor:pointer;transition:background .12s;}
+          .rb-item:hover{background:#252538;}
+          .rb-item.active{background:#163050;border-left:3px solid #4dabf7;}
+          .rb-title-text{font-size:13px;font-weight:600;color:#c7d0dd;margin-bottom:5px;line-height:1.3;}
+          .rb-item.active .rb-title-text{color:#e9ecef;}
+          .rb-meta-row{font-size:11px;color:#5c6370;display:flex;gap:6px;flex-wrap:wrap;align-items:center;}
+          .rb-badge{padding:1px 7px;border-radius:10px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.3px;}
+          .rb-cat-phishing{background:#1864ab33;color:#74c0fc;border:1px solid #1864ab55;}
+          .rb-cat-malware,.rb-cat-ransomware{background:#86200033;color:#ff8787;border:1px solid #86200055;}
+          .rb-cat-insider_threat,.rb-cat-lateral_movement{background:#5c310033;color:#ffa94d;border:1px solid #86490033;}
+          .rb-cat-c2,.rb-cat-vuln_exploit{background:#4a1a6033;color:#da77f2;border:1px solid #7048a855;}
+          .rb-cat-general,.rb-cat-default{background:#2a3a2a;color:#8ce99a;border:1px solid #2f7e3055;}
+          .rb-cat-data_exfiltration,.rb-cat-privilege_escalation{background:#4a1a1a33;color:#ff6b6b;border:1px solid #c92a2a44;}
+          .rb-sev-critical{color:#ff6b6b;font-weight:700;} .rb-sev-high{color:#ffa94d;font-weight:700;}
+          .rb-sev-medium{color:#ffe066;} .rb-sev-low{color:#8ce99a;} .rb-sev-all{color:#868e96;}
+
+          /* Right viewer */
+          #rb-viewer{flex:1;background:#1a1a26;overflow-y:auto;display:flex;flex-direction:column;}
+          #rb-empty{display:flex;align-items:center;justify-content:center;flex:1;color:#3c3c4e;font-size:14px;flex-direction:column;gap:12px;}
+          #rb-empty .rb-empty-icon{font-size:52px;opacity:.5;}
+          #rb-empty .rb-empty-hint{color:#4a4a5e;font-size:12px;}
+          #rb-detail{display:none;flex-direction:column;flex:1;}
+
+          #rb-dhead{padding:16px 28px 12px;border-bottom:1px solid #2c2c3a;background:#16162a;flex-shrink:0;}
+          #rb-dhead .rb-dtitle{font-size:20px;font-weight:700;color:#e9ecef;margin-bottom:6px;}
+          #rb-dhead .rb-dmeta{display:flex;gap:14px;font-size:12px;color:#8892a4;flex-wrap:wrap;align-items:center;}
+          #rb-dtoolbar{display:flex;gap:8px;padding:9px 28px;border-bottom:1px solid #252535;background:#1a1a24;align-items:center;flex-shrink:0;}
+
+          /* Markdown output */
+          #rb-md-render{padding:24px 32px;color:#c7d0dd;font-size:14px;line-height:1.75;flex:1;}
+          #rb-md-render h1{color:#8be0f7;font-size:22px;font-weight:700;border-bottom:1px solid #3c3c4e;padding-bottom:8px;margin:0 0 20px;}
+          #rb-md-render h2{color:#74c0fc;font-size:17px;font-weight:700;margin:26px 0 10px;border-left:3px solid #1864ab;padding-left:10px;}
+          #rb-md-render h3{color:#a9c0d4;font-size:14px;font-weight:700;margin:18px 0 8px;}
+          #rb-md-render h4{color:#8892a4;font-size:13px;font-weight:700;margin:14px 0 6px;text-transform:uppercase;letter-spacing:.5px;}
+          #rb-md-render p{margin:0 0 12px;color:#c7d0dd;}
+          #rb-md-render ul,#rb-md-render ol{margin:0 0 12px;padding-left:22px;color:#c7d0dd;}
+          #rb-md-render li{margin-bottom:4px;}
+          #rb-md-render strong{color:#e9ecef;font-weight:700;}
+          #rb-md-render em{color:#b8c8d8;}
+          #rb-md-render code{background:#2a2a3e;color:#ffa94d;padding:2px 6px;border-radius:3px;font-size:12.5px;font-family:"Cascadia Code","Fira Code",monospace;}
+          #rb-md-render pre{background:#111120;border:1px solid #3c3c4e;border-radius:6px;padding:14px 16px;overflow-x:auto;margin:0 0 14px;}
+          #rb-md-render pre code{background:none;padding:0;color:#e2e8f0;font-size:12.5px;}
+          #rb-md-render blockquote{border-left:3px solid #4dabf7;margin:0 0 12px;padding:8px 16px;background:#1e2535;border-radius:0 4px 4px 0;color:#a9b7c6;}
+          #rb-md-render table{border-collapse:collapse;width:100%;margin:0 0 14px;}
+          #rb-md-render table th{background:#2c2c3a;color:#8be0f7;padding:8px 12px;border:1px solid #3c3c4e;font-size:12px;text-align:left;}
+          #rb-md-render table td{padding:7px 12px;border:1px solid #2c2c3a;font-size:12px;color:#c7d0dd;}
+          #rb-md-render table tr:nth-child(even) td{background:#1f1f2e;}
+          #rb-md-render a{color:#4dabf7;}
+          #rb-md-render a:hover{text-decoration:underline;}
+          #rb-md-render hr{border:none;border-top:1px solid #3c3c4e;margin:22px 0;}
+          #rb-md-render input[type=checkbox]{margin-right:6px;accent-color:#4dabf7;}
+
+          /* Buttons */
+          .rb-btn{padding:5px 14px;border-radius:4px;font-size:12px;font-weight:600;cursor:pointer;border:1px solid transparent;text-decoration:none;display:inline-block;line-height:1.5;}
+          .rb-btn-primary{background:#1864ab;color:#fff;border-color:#1864ab;}
+          .rb-btn-primary:hover{background:#1c7ed6;}
+          .rb-btn-danger{background:#7a1e1e;color:#ff8787;border-color:#a82828;}
+          .rb-btn-danger:hover{background:#c92a2a;color:#fff;}
+          .rb-btn-secondary{background:#252535;color:#c7d0dd;border-color:#3c3c4e;}
+          .rb-btn-secondary:hover{background:#2c2c40;}
+
+          /* Bottom bar */
+          #rb-bottombar{display:flex;gap:8px;padding:10px 0 2px;border-top:1px solid #2c2c3a;margin-top:8px;align-items:center;}
+
+          /* Modal */
+          #rb-modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:9999;align-items:center;justify-content:center;}
+          #rb-modal-bg.open{display:flex!important;}
+          #rb-modal{background:#1e1e2e;border:1px solid #3c3c4e;border-radius:8px;width:860px;max-width:96vw;max-height:90vh;display:flex;flex-direction:column;box-shadow:0 24px 60px rgba(0,0,0,.6);}
+          #rb-modal-head{padding:14px 20px;border-bottom:1px solid #3c3c4e;display:flex;justify-content:space-between;align-items:center;background:#16162a;border-radius:8px 8px 0 0;}
+          #rb-modal-head h3{color:#e9ecef;font-size:15px;margin:0;}
+          #rb-modal-close{background:none;border:none;color:#5c6370;font-size:20px;cursor:pointer;line-height:1;padding:0 4px;}
+          #rb-modal-close:hover{color:#c7d0dd;}
+          #rb-modal-body{padding:20px;overflow-y:auto;flex:1;display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+          .rb-field{display:flex;flex-direction:column;gap:5px;}
+          .rb-field.full{grid-column:1/-1;}
+          .rb-field label{font-size:11px;color:#8be0f7;text-transform:uppercase;letter-spacing:.5px;font-weight:700;}
+          .rb-field input,.rb-field select,.rb-field textarea{background:#111120;border:1px solid #3c3c4e;color:#e9ecef;padding:7px 10px;border-radius:4px;font-size:13px;width:100%;box-sizing:border-box;}
+          .rb-field textarea{font-family:"Cascadia Code","Fira Code",Menlo,monospace;resize:vertical;min-height:280px;line-height:1.5;font-size:12.5px;}
+          .rb-field input:focus,.rb-field select:focus,.rb-field textarea:focus{outline:none;border-color:#4dabf7;}
+          .rb-field select option{background:#1e1e2e;color:#e9ecef;}
+          #rb-modal-foot{padding:12px 20px;border-top:1px solid #3c3c4e;display:flex;gap:8px;justify-content:flex-end;align-items:center;background:#16162a;border-radius:0 0 8px 8px;}
+          #rb-save-msg{font-size:12px;margin-right:auto;}
+
+          /* No-results / loading states */
+          .rb-list-empty{padding:20px 14px;text-align:center;color:#3c3c4e;font-size:12px;}
+        </style>
+
+        <div id="rb-wrap">
+          <div id="rb-container">
+
+            <!-- LEFT: list -->
+            <div id="rb-list">
+              <div id="rb-list-header">
+                <span>&#x1F4DA; Runbooks</span>
+                <span id="rb-list-count">...</span>
+              </div>
+              <div id="rb-list-items">
+                <div class="rb-list-empty">Loading...</div>
+              </div>
+            </div>
+
+            <!-- RIGHT: viewer -->
+            <div id="rb-viewer">
+              <div id="rb-empty">
+                <div class="rb-empty-icon">&#x1F4DA;</div>
+                <div style="color:#5c6370;">Select a runbook from the list</div>
+                <div class="rb-empty-hint">or click <strong style="color:#4dabf7;">+ New Runbook</strong> below</div>
+              </div>
+              <div id="rb-detail">
+                <div id="rb-dhead">
+                  <div class="rb-dtitle" id="rb-d-title">—</div>
+                  <div class="rb-dmeta" id="rb-d-meta"></div>
+                </div>
+                <div id="rb-dtoolbar">
+                  <button class="rb-btn rb-btn-secondary" onclick="window.rbEdit()">&#x270F;&#xFE0F; Edit</button>
+                  <button class="rb-btn rb-btn-danger"    onclick="window.rbDelete()">&#x1F5D1; Delete</button>
+                  <span style="flex:1;"></span>
+                  <a id="rb-dl-link" class="rb-btn rb-btn-secondary" href="#" download="">&#x2B07;&#xFE0F; Download .md</a>
+                </div>
+                <div id="rb-md-render"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Bottom bar -->
+          <div id="rb-bottombar">
+            <button class="rb-btn rb-btn-primary" onclick="window.rbNew()">&#x2795; New Runbook</button>
+            <button class="rb-btn rb-btn-secondary" onclick="window.rbImport()">&#x1F4C4; Import .md</button>
+            <input type="file" id="rb-file-input" accept=".md,.markdown,.txt" style="display:none;" onchange="window.rbHandleFile(event)"/>
+            <span style="flex:1;"></span>
+            <a href="/app/soc_triage_app/triage_dashboard" style="color:#4dabf7;font-size:13px;text-decoration:none;">&#8592; Triage Queue</a>
+            &#160;
+            <a href="/app/soc_triage_app/suppression" style="color:#4dabf7;font-size:13px;text-decoration:none;">&#128683; Suppressions</a>
+          </div>
+        </div>
+
+        <!-- Modal -->
+        <div id="rb-modal-bg">
+          <div id="rb-modal">
+            <div id="rb-modal-head">
+              <h3 id="rb-modal-title">New Runbook</h3>
+              <button id="rb-modal-close" onclick="window.rbCloseModal()">&#x2715;</button>
+            </div>
+            <div id="rb-modal-body">
+              <input type="hidden" id="rb-f-key"/>
+              <div class="rb-field">
+                <label>Title *</label>
+                <input type="text" id="rb-f-title" placeholder="e.g. Phishing Response Playbook"/>
+              </div>
+              <div class="rb-field">
+                <label>Category</label>
+                <select id="rb-f-cat">
+                  <option value="general">General</option>
+                  <option value="phishing">Phishing</option>
+                  <option value="malware">Malware</option>
+                  <option value="ransomware">Ransomware</option>
+                  <option value="insider_threat">Insider Threat</option>
+                  <option value="lateral_movement">Lateral Movement</option>
+                  <option value="data_exfiltration">Data Exfiltration</option>
+                  <option value="privilege_escalation">Privilege Escalation</option>
+                  <option value="c2">C2 / Beacon</option>
+                  <option value="vuln_exploit">Vuln Exploit</option>
+                </select>
+              </div>
+              <div class="rb-field">
+                <label>Severity Scope</label>
+                <select id="rb-f-sev">
+                  <option value="all">All</option>
+                  <option value="critical">Critical</option>
+                  <option value="high">High</option>
+                  <option value="medium">Medium</option>
+                  <option value="low">Low</option>
+                </select>
+              </div>
+              <div class="rb-field">
+                <label>Version</label>
+                <input type="text" id="rb-f-ver" placeholder="1.0"/>
+              </div>
+              <div class="rb-field">
+                <label>Author</label>
+                <input type="text" id="rb-f-author" placeholder="Analyst name"/>
+              </div>
+              <div class="rb-field">
+                <label>Tags (comma-separated)</label>
+                <input type="text" id="rb-f-tags" placeholder="phishing, T1566, email"/>
+              </div>
+              <div class="rb-field full">
+                <label>Markdown Content *</label>
+                <textarea id="rb-f-content" placeholder="# Runbook Title&#10;&#10;## Overview&#10;..."></textarea>
+              </div>
+            </div>
+            <div id="rb-modal-foot">
+              <span id="rb-save-msg"></span>
+              <button class="rb-btn rb-btn-secondary" onclick="window.rbCloseModal()">Cancel</button>
+              <button class="rb-btn rb-btn-primary"   onclick="window.rbSave()">&#x1F4BE; Save Runbook</button>
+            </div>
+          </div>
+        </div>
+
+        <script src="/static/app/soc_triage_app/runbooks.js"></script>
+        <script>
+        /* placeholder – logic is in runbooks.js */
+        void 0;
+        </script>
+      </html>
+    </panel>
+  </row>
+
+</form>

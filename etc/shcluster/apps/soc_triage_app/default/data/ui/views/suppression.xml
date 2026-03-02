@@ -1,0 +1,179 @@
+<form version="1.1" theme="dark">
+  <label>Suppression &amp; False Positive Manager</label>
+  <description>Create and manage suppression rules. Active rules auto-close matching alerts via the SOC Auto-Close scheduled search every 15 minutes.</description>
+  <row>
+    <panel>
+      <html>
+        <style>
+          body,.appBackground,#view,#content,.main-content-body,.splunk-components,.shared-page-chrome,
+          .dashboard-body,.dashboard-row .dashboard-cell,.page-content{background-color:#1a1a24!important;color:#c7d0dd!important}
+          .dashboard-panel,.panel-body,.panel-head{background-color:#23232f!important;color:#c7d0dd!important;border-color:#3c3c4e!important}
+          .panel-head h3{color:#a9b7c6!important;font-size:13px!important;letter-spacing:.3px;}
+          thead th,.table th{background-color:#2c2c3a!important;color:#8be0f7!important;border-color:#3c3c4e!important;font-size:12px!important;}
+          .splunk-table tbody td,.table tbody td{color:#c7d0dd!important;background-color:#23232f!important;border-color:#3c3c4e!important;font-size:12px!important;}
+          .splunk-table tbody tr:nth-child(even) td{background-color:#1f1f2e!important}
+          .splunk-table tbody tr:hover td{background-color:#2a3a52!important;cursor:pointer;}
+          .fieldset,.dashboard-fieldset,.splunk-textinput input,.splunk-dropdown .btn,.btn-default,.control-group .controls input,select{background-color:#2c2c3a!important;color:#c7d0dd!important;border-color:#4a4a5e!important;}
+          .shared-appnav,.appbar,.navbar,.navbar-default{background-color:#13131a!important;border-bottom-color:#2a2a3a!important;}
+          .shared-appnav a,.navbar a{color:#8be0f7!important;}
+          .highcharts-plot-background,.highcharts-background{fill:#1f1f2e!important;}
+          .highcharts-axis-labels text,.highcharts-axis text,.highcharts-legend-item text{fill:#a9b7c6!important;}
+          .highcharts-grid-line{stroke:#2c2c3a!important;}
+          .shared-singlevalue .number{color:#8be0f7!important;}
+          .shared-description,.description{color:#868e96!important;font-size:12px!important;}
+          .splunk-list-accordion .accordion-heading a,.splunk-list-accordion .accordion-group{background:#23232f!important;color:#c7d0dd!important;border-color:#3c3c4e!important;}
+          ::-webkit-scrollbar{background:#1a1a24;width:6px;height:6px;}
+          ::-webkit-scrollbar-thumb{background:#3c3c4e;border-radius:3px;}
+        </style>
+      </html>
+    </panel>
+  </row>
+
+  <!-- ─── Active Rules ──────────────────────────────────────────────────── -->
+  <row>
+    <panel>
+      <title>&#x1F6AB; Active Suppression Rules &#x2014; copy _key to deactivate below</title>
+      <table>
+        <search>
+          <query>| inputlookup soc_suppression_list
+| eval expiry_epoch=strptime(expiry,"%Y-%m-%dT%H:%M:%SZ"),
+       expired=if(now()&gt;expiry_epoch,"yes","no"),
+       Status=if(active="true" AND expired="no","&#x2705; Active","&#x274C; Inactive/Expired"),
+       Expires_In=if(active="true" AND expired="no",round((expiry_epoch-now())/3600,1)." hrs","—")
+| table _key rule_name entity_pattern suppress_type reason created_by created_at expiry Expires_In Status
+| sort - created_at</query>
+          <earliest>-1m</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="count">20</option>
+        <option name="drilldown">none</option>
+      </table>
+    </panel>
+  </row>
+
+  <!-- ─── Create New Rule ───────────────────────────────────────────────── -->
+  <row>
+    <panel>
+      <title>&#x2795; Create Suppression Rule</title>
+      <input type="text" token="sup_rule_name" searchWhenChanged="false">
+        <label>ESCU Rule Name (exact match or * wildcard)</label>
+        <default></default>
+      </input>
+      <input type="text" token="sup_entity" searchWhenChanged="false">
+        <label>Entity Pattern (username / host / IP, or * for any)</label>
+        <default>*</default>
+      </input>
+      <input type="dropdown" token="sup_type" searchWhenChanged="false">
+        <label>Suppression Type</label>
+        <choice value="fp">&#x2705; False Positive</choice>
+        <choice value="tuning">&#x1F527; Needs Tuning</choice>
+        <choice value="expected">&#x1F4CB; Expected Behavior</choice>
+        <choice value="maintenance">&#x1F6E0;&#xFE0F; Maintenance Window</choice>
+        <default>fp</default>
+      </input>
+      <input type="text" token="sup_reason" searchWhenChanged="false">
+        <label>Justification / Ticket Reference</label>
+        <default></default>
+      </input>
+      <input type="dropdown" token="sup_expiry_hrs" searchWhenChanged="false">
+        <label>Expiry Duration</label>
+        <choice value="1">1 Hour</choice>
+        <choice value="4">4 Hours</choice>
+        <choice value="8">8 Hours (one shift)</choice>
+        <choice value="24">24 Hours</choice>
+        <choice value="72">3 Days</choice>
+        <choice value="168">7 Days</choice>
+        <choice value="720">30 Days</choice>
+        <default>24</default>
+      </input>
+      <input type="radio" token="sup_confirm" searchWhenChanged="true">
+        <label>&#x26A0;&#xFE0F; Confirm Create</label>
+        <choice value="">&#x23F8;&#xFE0F; Not yet &#x2014; still filling fields</choice>
+        <choice value="yes">&#x2705; CONFIRM &#x2014; create suppression rule now</choice>
+        <default></default>
+      </input>
+      <table id="sup_write" depends="$sup_confirm$">
+        <title>Create Status</title>
+        <search>
+          <query>| makeresults
+| eval rule_name="$sup_rule_name$", entity_pattern="$sup_entity$",
+       suppress_type="$sup_type$", reason="$sup_reason$",
+       expiry=strftime(now()+tonumber("$sup_expiry_hrs$")*3600,"%Y-%m-%dT%H:%M:%SZ"),
+       created_by="$env:user$", created_at=strftime(now(),"%Y-%m-%dT%H:%M:%SZ"), active="true"
+| fields - _time
+| outputlookup append=true soc_suppression_list
+| eval result="&#x2705; Rule created &#x2014; ".rule_name." on ".entity_pattern." | type=".suppress_type." | expires in $sup_expiry_hrs$ hrs ("expiry.")"
+| table result</query>
+          <earliest>-1m</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="count">1</option>
+      </table>
+    </panel>
+  </row>
+
+  <!-- ─── Deactivate ───────────────────────────────────────────────────── -->
+  <row>
+    <panel>
+      <title>&#x274C; Deactivate a Rule</title>
+      <input type="dropdown" token="deact_key" searchWhenChanged="false">
+        <label>Select Rule to Deactivate</label>
+        <populatingSearch fieldForLabel="display_label" fieldForValue="_key">
+          | inputlookup soc_suppression_list | where active="true" | eval expiry_epoch=strptime(expiry,"%Y-%m-%dT%H:%M:%SZ") | where now()&lt;expiry_epoch | eval display_label=rule_name." [".entity_pattern."] expires ".strftime(expiry_epoch,"%m/%d %H:%M") | table display_label _key | sort display_label
+        </populatingSearch>
+        <default></default>
+      </input>
+      <table id="sup_deactivate">
+        <title>Deactivation Status &#x2014; click Submit to deactivate</title>
+        <search>
+          <query>| inputlookup soc_suppression_list | where _key="$deact_key$" | eval active="false" | outputlookup append=false key_field=_key soc_suppression_list | eval result="&#x274C; Rule deactivated &#x2014; _key=$deact_key$" | table result</query>
+          <earliest>-1m</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="count">1</option>
+      </table>
+    </panel>
+  </row>
+
+  <!-- ─── Preview ──────────────────────────────────────────────────────── -->
+  <row>
+    <panel>
+      <title>&#x1F50D; Preview &#x2014; Alerts Currently Matched by Active Suppressions</title>
+      <table>
+        <search>
+          <query>`soc_alerts_normalized`
+| where status!="closed"
+| lookup soc_suppression_list rule_name OUTPUT entity_pattern as sup_entity, suppress_type, reason, expiry, active
+| where active="true"
+| eval expiry_epoch=strptime(expiry,"%Y-%m-%dT%H:%M:%SZ")
+| where now()&lt;expiry_epoch
+| eval entity_match=if(sup_entity="*" OR match(entity,sup_entity),"yes","no")
+| where entity_match="yes"
+| eval Priority=case(severity="critical","&#x1F534; CRITICAL",severity="high","&#x1F7E0; HIGH",severity="medium","&#x1F7E1; MEDIUM",true(),"&#x1F7E2; LOW")
+| table alert_id rule_name entity Priority risk_score sup_entity suppress_type reason expiry
+| sort - risk_score</query>
+          <earliest>-24h</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="count">20</option>
+        <option name="drilldown">none</option>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <html>
+        <div style="padding:8px 4px;border-top:1px solid #2c2c3a;display:flex;gap:24px;align-items:center;">
+          <span style="color:#4a4a5e;font-size:12px;">&#x1F5FA;&#xFE0F; Navigate:</span>
+          <a href="/app/soc_triage_app/triage_dashboard" style="color:#4dabf7;font-size:13px;text-decoration:none;">&#128203; Triage Queue</a>
+          <a href="/app/soc_triage_app/analyst_metrics" style="color:#4dabf7;font-size:13px;text-decoration:none;">&#128202; Analyst Metrics</a>
+          <a href="/app/soc_triage_app/suppression" style="color:#4dabf7;font-size:13px;text-decoration:none;">&#128683; Suppressions</a>
+          <a href="/app/soc_triage_app/overview" style="color:#4dabf7;font-size:13px;text-decoration:none;">&#128196; Overview</a>
+        </div>
+      </html>
+    </panel>
+  </row>
+
+</form>

@@ -1,0 +1,229 @@
+<dashboard version="1.1" theme="dark">
+  <label>Cyber Defense App &#x2014; Overview</label>
+
+  <row>
+    <panel>
+      <html>
+        <style>
+          body,.appBackground,#view,#content,.main-content-body,.splunk-components,.shared-page-chrome,.dashboard-body,.dashboard-row .dashboard-cell,.page-content{background-color:#1a1a24!important;color:#c7d0dd!important}
+          .dashboard-panel,.panel-body,.panel-head{background-color:#23232f!important;color:#c7d0dd!important;border-color:#3c3c4e!important}
+          .panel-head h3{color:#a9b7c6!important}
+          .shared-appnav,.appbar,.navbar,.navbar-default{background-color:#13131a!important;border-bottom-color:#3c3c4e!important}
+          .shared-appnav a,.navbar a{color:#8be0f7!important}
+          thead th,.table th{background-color:#2c2c3a!important;color:#8be0f7!important;border-color:#3c3c4e!important;font-size:12px!important;}
+          .splunk-table tbody td,.table tbody td{color:#c7d0dd!important;background-color:#23232f!important;border-color:#3c3c4e!important;font-size:12px!important;}
+          .splunk-table tbody tr:nth-child(even) td{background-color:#1f1f2e!important}
+          .splunk-table tbody tr:hover td{background-color:#2a3a52!important;cursor:pointer;}
+          .fieldset,.dashboard-fieldset,.splunk-textinput input,.splunk-dropdown .btn,.btn-default,.control-group .controls input,select{background-color:#2c2c3a!important;color:#c7d0dd!important;border-color:#4a4a5e!important;}
+          .shared-singlevalue .number{color:#8be0f7!important;}
+          ::-webkit-scrollbar{background:#1a1a24;width:6px;height:6px;}
+          ::-webkit-scrollbar-thumb{background:#3c3c4e;border-radius:3px;}
+          /* Overview page styles */
+          .ov-wrap{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;max-width:1100px;margin:0 auto;padding:4px 8px;}
+          .ov-hero{background:linear-gradient(135deg,#1e2d40 0%,#0d1b2a 100%);border:1px solid #2a4a6b;border-radius:10px;padding:32px 36px;margin-bottom:24px;}
+          .ov-hero h1{font-size:28px;color:#8be0f7;margin:0 0 8px 0;font-weight:700;}
+          .ov-hero p{color:#a0b4c8;font-size:15px;margin:0;line-height:1.6;}
+          .ov-badge{display:inline-block;background:#1971c2;color:#fff;font-size:11px;font-weight:700;padding:3px 9px;border-radius:12px;margin-right:6px;vertical-align:middle;}
+          .ov-badge.green{background:#2f9e44;} .ov-badge.orange{background:#e67700;} .ov-badge.red{background:#c92a2a;}
+          .ov-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px;}
+          .ov-card{background:#23232f;border:1px solid #3c3c4e;border-radius:8px;padding:20px 22px;}
+          .ov-card h3{color:#8be0f7;font-size:15px;margin:0 0 12px 0;display:flex;align-items:center;gap:8px;}
+          .ov-card ul{margin:0;padding-left:18px;color:#a9b7c6;font-size:13px;line-height:1.9;}
+          .ov-card li b{color:#c7d0dd;}
+          .ov-flow{display:flex;align-items:center;gap:0;margin-bottom:24px;background:#23232f;border:1px solid #3c3c4e;border-radius:8px;padding:20px 24px;flex-wrap:wrap;}
+          .ov-step{text-align:center;min-width:130px;flex:1;}
+          .ov-step-icon{font-size:26px;margin-bottom:4px;}
+          .ov-step-title{color:#8be0f7;font-size:13px;font-weight:700;}
+          .ov-step-desc{color:#868e96;font-size:11px;margin-top:2px;}
+          .ov-arrow{color:#4a4a5e;font-size:22px;margin:0 4px;flex-shrink:0;}
+          .ov-tier-table{width:100%;border-collapse:collapse;font-size:13px;margin-top:4px;}
+          .ov-tier-table th{background:#2c2c3a;color:#8be0f7;padding:7px 10px;text-align:left;border:1px solid #3c3c4e;}
+          .ov-tier-table td{padding:7px 10px;border:1px solid #3c3c4e;color:#c7d0dd;vertical-align:top;}
+          .ov-tier-table tr:nth-child(even) td{background:#1f1f2e;}
+          .ov-links{display:flex;gap:12px;flex-wrap:wrap;margin-top:24px;}
+          .ov-btn{display:inline-block;padding:9px 20px;border-radius:6px;font-size:13px;font-weight:700;text-decoration:none;color:#fff!important;}
+          .ov-btn.primary{background:#1971c2;} .ov-btn.secondary{background:#2c2c3a;border:1px solid #4a4a5e;}
+          .ov-kv{background:#1a1a24;border:1px solid #3c3c4e;border-radius:6px;padding:14px 18px;margin-top:4px;font-size:12px;color:#868e96;line-height:1.8;}
+          .ov-kv b{color:#8be0f7;}
+        </style>
+        <div class="ov-wrap">
+
+          <!-- Hero -->
+          <div class="ov-hero">
+            <h1>&#x1F6E1;&#xFE0F; Cyber Defense App <span style="font-size:14px;color:#4dabf7;font-weight:400;">v0.2.0</span></h1>
+            <p>A Splunk-native SOC analyst workflow application built for Security Operations Centers running
+            Splunk Enterprise Security (ES) with ESCU content. Provides a structured Tier 1 &#x2192; Tier 2 &#x2192; Tier 3
+            triage pipeline, KV Store state persistence, analyst metrics, and suppression management &#x2014;
+            all in a dark-theme, interactive interface deployable via SHC bundle.</p>
+            <div style="margin-top:14px;">
+              <span class="ov-badge">ES Notables</span>
+              <span class="ov-badge green">ESCU Aligned</span>
+              <span class="ov-badge orange">KV Store Overlay</span>
+              <span class="ov-badge red">SHC Bundle Ready</span>
+            </div>
+          </div>
+
+          <!-- Alert flow -->
+          <div class="ov-card" style="margin-bottom:16px;">
+            <h3>&#x1F504; Alert Lifecycle</h3>
+            <div class="ov-flow" style="background:transparent;border:none;padding:10px 0 0 0;">
+              <div class="ov-step"><div class="ov-step-icon">&#x1F4E1;</div><div class="ov-step-title">ES Notable</div><div class="ov-step-desc">index=notable<br/>or seed CSV</div></div>
+              <div class="ov-arrow">&#x2192;</div>
+              <div class="ov-step"><div class="ov-step-icon">&#x1F9F9;</div><div class="ov-step-title">Normalize</div><div class="ov-step-desc">soc_alerts_normalized<br/>macro + KV overlay</div></div>
+              <div class="ov-arrow">&#x2192;</div>
+              <div class="ov-step"><div class="ov-step-icon">&#x1F4CB;</div><div class="ov-step-title">Triage Queue</div><div class="ov-step-desc">Tier/owner/severity<br/>filter + SLA badges</div></div>
+              <div class="ov-arrow">&#x2192;</div>
+              <div class="ov-step"><div class="ov-step-icon">&#x1F50D;</div><div class="ov-step-title">Alert Detail</div><div class="ov-step-desc">Enrich, assign tier,<br/>write triage decision</div></div>
+              <div class="ov-arrow">&#x2192;</div>
+              <div class="ov-step"><div class="ov-step-icon">&#x2705;</div><div class="ov-step-title">Close / Escalate</div><div class="ov-step-desc">KV audit trail<br/>+ auto-suppress</div></div>
+            </div>
+          </div>
+
+          <!-- Two column grid -->
+          <div class="ov-grid">
+
+            <!-- Tier model -->
+            <div class="ov-card">
+              <h3>&#x1F3AF; Tier Model</h3>
+              <table class="ov-tier-table">
+                <tr><th>Tier</th><th>Role</th><th>Responsibilities</th></tr>
+                <tr><td><b style="color:#4dabf7;">T1</b></td><td>soc_tier1</td><td>Initial intake, assign ownership, basic triage, close FPs</td></tr>
+                <tr><td><b style="color:#ffa94d;">T2</b></td><td>soc_tier2</td><td>Deep investigation, pivot on enrichment data, escalate confirmed threats</td></tr>
+                <tr><td><b style="color:#ff6b6b;">T3</b></td><td>soc_tier3</td><td>Threat hunting, detection tuning, suppression rule authoring</td></tr>
+                <tr><td><b style="color:#da77f2;">Lead</b></td><td>soc_lead</td><td>All tier access, shift metrics review, bulk triage, team oversight</td></tr>
+              </table>
+            </div>
+
+            <!-- Data sources -->
+            <div class="ov-card">
+              <h3>&#x1F4E6; Data Sources &amp; Enrichment</h3>
+              <ul>
+                <li><b>Primary:</b> index=notable (ES notables, ESCU detections)</li>
+                <li><b>Fallback:</b> soc_triage_seed_alerts.csv (demo / staging)</li>
+                <li><b>Asset:</b> asset_lookup_by_str (ES) &#x2192; soc_asset_criticality KV</li>
+                <li><b>Identity:</b> identity_lookup_expanded (ES)</li>
+                <li><b>User Risk:</b> index=risk &#x2192; soc_user_risk KV</li>
+                <li><b>Threat Intel:</b> index=threatlists &#x2192; soc_threat_intel KV</li>
+              </ul>
+            </div>
+
+            <!-- Pages -->
+            <div class="ov-card">
+              <h3>&#x1F5C2;&#xFE0F; App Pages</h3>
+              <ul>
+                <li><b>Overview</b> &#x2014; This page</li>
+                <li><b>Triage Dashboard</b> &#x2014; Alert queue, SLA status, bulk triage</li>
+                <li><b>Alert Detail</b> &#x2014; Per-alert enrichment and triage form</li>
+                <li><b>Analyst Metrics</b> &#x2014; KPIs, MTTA, leaderboard, volume trends</li>
+                <li><b>Suppressions</b> &#x2014; Create / manage / preview suppression rules</li>
+              </ul>
+            </div>
+
+            <!-- KV Store collections -->
+            <div class="ov-card">
+              <h3>&#x1F5C4;&#xFE0F; KV Store Collections</h3>
+              <div class="ov-kv">
+                <b>soc_alert_triage</b> &#x2014; Triage state overlay (status, owner, tier, severity, notes, escalation)<br/>
+                <b>soc_triage_audit</b> &#x2014; Immutable audit log of all triage actions<br/>
+                <b>soc_suppression_list</b> &#x2014; Suppression rules (rule_name, entity, expiry, created_by)<br/>
+                <b>soc_asset_criticality</b> &#x2014; Asset priority / owner / BU fallback<br/>
+                <b>soc_user_risk</b> &#x2014; User risk score / level fallback<br/>
+                <b>soc_threat_intel</b> &#x2014; IOC / threat intel fallback
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Scheduled searches -->
+          <div class="ov-card" style="margin-bottom:16px;">
+            <h3>&#x23F0; Scheduled Searches</h3>
+            <ul style="column-count:2;column-gap:40px;">
+              <li><b>SOC High-Risk Alert Alert</b> &#x2014; Fires when risk_score &#x2265; 80, every 5 min</li>
+              <li><b>SOC Stale Alert Reassignment</b> &#x2014; Flags alerts unowned for 6+ hours</li>
+              <li><b>SOC SLA Breach Alert</b> &#x2014; Detects sla_due exceeded, hourly</li>
+              <li><b>SOC Auto-Close Suppressed</b> &#x2014; Closes alerts matching active suppression rules, every 15 min</li>
+              <li><b>SOC Daily Shift Report</b> &#x2014; Daily summary email-ready report, 07:00</li>
+            </ul>
+          </div>
+
+          <!-- Quick-start links -->
+          <div style="border-top:1px solid #3c3c4e;padding-top:16px;">
+            <span style="color:#868e96;font-size:13px;margin-right:12px;">Get started &#x2192;</span>
+            <a class="ov-btn primary" href="/app/soc_triage_app/triage_dashboard">&#x1F4CB; Triage Queue</a>
+            &#160;
+            <a class="ov-btn secondary" href="/app/soc_triage_app/analyst_metrics">&#x1F4CA; Analyst Metrics</a>
+            &#160;
+            <a class="ov-btn secondary" href="/app/soc_triage_app/suppression">&#x1F6AB; Suppressions</a>
+          </div>
+
+        </div>
+      </html>
+    </panel>
+  </row>
+
+
+  <!-- ─── Analyst Roster ───────────────────────────────────────────────── -->
+  <row>
+    <panel>
+      <title>&#x1F465; Analyst Roster &#x2014; SOC Team Members (auto-synced from LDAP every 30 min)</title>
+      <table>
+        <search>
+          <query>| inputlookup soc_analyst_roster | where active="true"
+| eval Last_Sync=strftime(strptime(last_synced,"%Y-%m-%dT%H:%M:%SZ"),"%m/%d %H:%M")
+| rename username as Username, display_name as "Display Name", email as Email, tier as Tier, splunk_role as "Splunk Role", last_synced as "Last Synced"
+| table Username "Display Name" Email Tier "Splunk Role" Last_Sync
+| sort Tier</query>
+          <earliest>-1m</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="count">50</option>
+        <option name="drilldown">none</option>
+      </table>
+    </panel>
+    <panel>
+      <title>&#x2795; Add Analyst Manually (dev / pre-LDAP)</title>
+      <input type="text" token="roster_user" searchWhenChanged="false">
+        <label>Username</label>
+        <default></default>
+      </input>
+      <input type="text" token="roster_name" searchWhenChanged="false">
+        <label>Display Name</label>
+        <default></default>
+      </input>
+      <input type="text" token="roster_email" searchWhenChanged="false">
+        <label>Email</label>
+        <default></default>
+      </input>
+      <input type="dropdown" token="roster_tier" searchWhenChanged="false">
+        <label>Tier</label>
+        <choice value="T1 - Intake">T1 &#x2014; Intake</choice>
+        <choice value="T2 - Investigate">T2 &#x2014; Investigate</choice>
+        <choice value="T3 - Hunt/Tune">T3 &#x2014; Hunt/Tune</choice>
+        <choice value="Lead">Lead</choice>
+        <default>T1 - Intake</default>
+      </input>
+      <input type="text" token="roster_ldap" searchWhenChanged="false">
+        <label>LDAP Group CN (optional)</label>
+        <default></default>
+      </input>
+      <table>
+        <title>Add Status &#x2014; click Submit</title>
+        <search>
+          <query>| makeresults
+| eval username="$roster_user$", display_name="$roster_name$", email="$roster_email$",
+       tier="$roster_tier$", ldap_group="$roster_ldap$", splunk_role="manual",
+       active="true", last_synced=strftime(now(),"%Y-%m-%dT%H:%M:%SZ")
+| fields - _time
+| outputlookup append=true soc_analyst_roster
+| eval result="&#x2705; Added ".username." (".display_name.") to roster as ".tier
+| table result</query>
+          <earliest>-1m</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="count">1</option>
+      </table>
+    </panel>
+  </row>
+
+</dashboard>

@@ -1,0 +1,6 @@
+entity,criticality,asset_type,asset_owner,business_unit,notes
+svc-admin,critical,service_account,it-admin@company.com,IT Operations,Privileged service account - escalate immediately
+finance-lt-12,high,workstation,finance-manager@company.com,Finance,Finance team endpoint - PCI scope
+jsmith,high,user_account,hr@company.com,Engineering,Senior engineer - elevated access
+adoe,medium,user_account,hr@company.com,Marketing,Standard user
+10.2.10.3,low,server,netops@company.com,Network,Internal DC scanner

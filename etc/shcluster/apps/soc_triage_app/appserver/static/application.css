@@ -1,0 +1,147 @@
+/*
+ * SOC Triage App — Force dark theme for all app pages (Splunk 10.x compatible)
+ * This CSS loads automatically for every page in this app.
+ */
+
+/* ── Global app chrome ─────────────────────────────────────────────────── */
+body,
+.appBackground,
+#view,
+#content,
+.main-content-body,
+.splunk-components,
+.shared-page-chrome,
+.dashboard-row .dashboard-cell,
+.page-content {
+  background-color: #1a1a24 !important;
+  color: #c7d0dd !important;
+}
+
+/* ── Dashboard scaffold ────────────────────────────────────────────────── */
+.splunk-dashboard-page-launcher,
+.dashboard-body,
+.splunk-view:not(.has-custom-theme),
+[data-view="views/dashboard/Master"],
+.splunk-dashboard-dark {
+  background-color: #1a1a24 !important;
+}
+
+/* ── Panels ────────────────────────────────────────────────────────────── */
+.dashboard-panel,
+.panel-body,
+.dashboard-panel .panel-body,
+.dashboard-panel .panel-head,
+.panel-head h3,
+.panel-element-row > div,
+.panel-body .highcharts-container,
+.splunkVisualizationWrapper {
+  background-color: #23232f !important;
+  color: #c7d0dd !important;
+  border-color: #3c3c4e !important;
+}
+
+.panel-head h3 {
+  color: #a9b7c6 !important;
+}
+
+/* ── Tables ────────────────────────────────────────────────────────────── */
+table.table,
+.splunk-table,
+.table-chrome,
+.table-scroll-inner,
+.shared-resultsheader {
+  background-color: #23232f !important;
+  color: #c7d0dd !important;
+}
+
+.splunk-table thead th,
+.table th,
+.shared-resultsheader * {
+  background-color: #2c2c3a !important;
+  color: #8be0f7 !important;
+  border-color: #3c3c4e !important;
+}
+
+.splunk-table tbody tr:nth-child(even) td,
+.table tbody tr:nth-child(even) td {
+  background-color: #1f1f2e !important;
+}
+
+.splunk-table tbody tr:hover td,
+.table tbody tr:hover td {
+  background-color: #2a3a52 !important;
+}
+
+.splunk-table tbody td,
+.table tbody td {
+  color: #c7d0dd !important;
+  border-color: #3c3c4e !important;
+}
+
+/* ── Fieldset inputs / dropdowns ──────────────────────────────────────── */
+.fieldset,
+.dashboard-fieldset,
+.input-label,
+.splunk-textinput input,
+.splunk-dropdown .btn,
+.shared-controls-controlgroup select,
+.shared-controls-textareacontrol textarea,
+.dashboard-fieldset .input,
+.control-group .controls input,
+.btn-default {
+  background-color: #2c2c3a !important;
+  color: #c7d0dd !important;
+  border-color: #4a4a5e !important;
+}
+
+/* ── Single value panels ──────────────────────────────────────────────── */
+.single-value,
+.shared-singlevalue,
+.shared-singlevalue-afterlabel,
+.shared-singlevalue-underlabel {
+  color: #8be0f7 !important;
+}
+
+/* ── Charts ────────────────────────────────────────────────────────────── */
+.highcharts-plot-background,
+.highcharts-background,
+.highcharts-container {
+  fill: #23232f !important;
+  background: #23232f !important;
+}
+
+.highcharts-axis-labels text,
+.highcharts-axis text,
+.highcharts-legend-item text {
+  fill: #c7d0dd !important;
+  color: #c7d0dd !important;
+}
+
+/* ── Nav bar ───────────────────────────────────────────────────────────── */
+.shared-appnav,
+.appbar,
+.app-bar,
+.navbar,
+.navbar-default,
+.splunk-nav {
+  background-color: #13131a !important;
+  border-bottom-color: #3c3c4e !important;
+}
+
+.shared-appnav a,
+.app-bar a,
+.navbar a {
+  color: #8be0f7 !important;
+}
+
+/* ── HTML panels ───────────────────────────────────────────────────────── */
+.dashboard-panel .html-view,
+.SimpleXmlViewer-html,
+.SplunkVisualization-html {
+  background-color: #23232f !important;
+  color: #c7d0dd !important;
+}
+
+/* ── Scrollbars ────────────────────────────────────────────────────────── */
+::-webkit-scrollbar { background: #1a1a24; width: 7px; height: 7px; }
+::-webkit-scrollbar-thumb { background: #4a4a5e; border-radius: 4px; }

@@ -1,0 +1,8 @@
+<nav search_view="triage_dashboard">
+  <view name="overview">Overview</view>
+  <view name="triage_dashboard" default="true">Triage Dashboard</view>
+  <view name="alert_detail">Alert Detail</view>
+  <view name="analyst_metrics">Analyst Metrics</view>
+  <view name="suppression">Suppressions</view>
+  <view name="runbooks">Runbooks</view>
+</nav>

@@ -1,0 +1,2 @@
+username,display_name,email,ldap_group,splunk_role,tier,active,last_synced
+admin,Administrator,,local,admin,Admin,true,2026-02-27T00:00:00Z

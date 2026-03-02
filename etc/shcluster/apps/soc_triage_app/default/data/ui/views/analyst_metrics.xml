@@ -1,0 +1,223 @@
+<dashboard version="1.1" theme="dark">
+  <label>Analyst Metrics &amp; Shift Summary</label>
+  <description>SOC performance KPIs, MTTA, analyst leaderboard, and detection coverage for the selected shift window.</description>
+  <refresh>300</refresh>
+
+  <fieldset submitButton="false" autoRun="true">
+    <input type="time" token="time_range" searchWhenChanged="true">
+      <label>Shift Window</label>
+      <default>
+        <earliest>-8h</earliest>
+        <latest>now</latest>
+      </default>
+    </input>
+    <input type="dropdown" token="filter_owner" searchWhenChanged="true">
+      <label>Analyst</label>
+      <populatingSearch fieldForLabel="owner" fieldForValue="owner">
+        `soc_alerts_normalized` | stats count by owner | where owner!="" | sort owner
+      </populatingSearch>
+      <choice value="*">All Analysts</choice>
+      <default>*</default>
+    </input>
+  </fieldset>
+  <row>
+    <panel>
+      <html>
+        <style>
+          body,.appBackground,#view,#content,.main-content-body,.splunk-components,.shared-page-chrome,
+          .dashboard-body,.dashboard-row .dashboard-cell,.page-content{background-color:#1a1a24!important;color:#c7d0dd!important}
+          .dashboard-panel,.panel-body,.panel-head{background-color:#23232f!important;color:#c7d0dd!important;border-color:#3c3c4e!important}
+          .panel-head h3{color:#a9b7c6!important;font-size:13px!important;letter-spacing:.3px;}
+          thead th,.table th{background-color:#2c2c3a!important;color:#8be0f7!important;border-color:#3c3c4e!important;font-size:12px!important;}
+          .splunk-table tbody td,.table tbody td{color:#c7d0dd!important;background-color:#23232f!important;border-color:#3c3c4e!important;font-size:12px!important;}
+          .splunk-table tbody tr:nth-child(even) td{background-color:#1f1f2e!important}
+          .splunk-table tbody tr:hover td{background-color:#2a3a52!important;cursor:pointer;}
+          .fieldset,.dashboard-fieldset,.splunk-textinput input,.splunk-dropdown .btn,.btn-default,.control-group .controls input,select{background-color:#2c2c3a!important;color:#c7d0dd!important;border-color:#4a4a5e!important;}
+          .shared-appnav,.appbar,.navbar,.navbar-default{background-color:#13131a!important;border-bottom-color:#2a2a3a!important;}
+          .shared-appnav a,.navbar a{color:#8be0f7!important;}
+          .highcharts-plot-background,.highcharts-background{fill:#1f1f2e!important;}
+          .highcharts-axis-labels text,.highcharts-axis text,.highcharts-legend-item text{fill:#a9b7c6!important;}
+          .highcharts-grid-line{stroke:#2c2c3a!important;}
+          .shared-singlevalue .number{color:#8be0f7!important;}
+          .shared-description,.description{color:#868e96!important;font-size:12px!important;}
+          .splunk-list-accordion .accordion-heading a,.splunk-list-accordion .accordion-group{background:#23232f!important;color:#c7d0dd!important;border-color:#3c3c4e!important;}
+          ::-webkit-scrollbar{background:#1a1a24;width:6px;height:6px;}
+          ::-webkit-scrollbar-thumb{background:#3c3c4e;border-radius:3px;}
+        </style>
+      </html>
+    </panel>
+  </row>
+
+  <!-- ─── KPI Strip ────────────────────────────────────────────────────── -->
+  <row>
+    <panel>
+      <title>Total Alerts</title>
+      <single>
+        <search>
+          <query>`soc_alerts_normalized` | stats dc(alert_id) as count</query>
+          <earliest>$time_range.earliest$</earliest>
+          <latest>$time_range.latest$</latest>
+        </search>
+        <option name="colorMode">block</option>
+        <option name="useColors">false</option>
+        <option name="underLabel">this shift</option>
+      </single>
+    </panel>
+    <panel>
+      <title>Closed / Resolved</title>
+      <single>
+        <search>
+          <query>`soc_alerts_normalized` | where status="closed" | stats dc(alert_id) as count</query>
+          <earliest>$time_range.earliest$</earliest>
+          <latest>$time_range.latest$</latest>
+        </search>
+        <option name="colorMode">block</option>
+        <option name="useColors">1</option>
+        <option name="rangeColors">["0x65a30d","0x65a30d"]</option>
+        <option name="underLabel">resolved this shift</option>
+      </single>
+    </panel>
+    <panel>
+      <title>Still Open</title>
+      <single>
+        <search>
+          <query>`soc_alerts_normalized` | where status!="closed" | stats dc(alert_id) as count</query>
+          <earliest>$time_range.earliest$</earliest>
+          <latest>$time_range.latest$</latest>
+        </search>
+        <option name="colorMode">block</option>
+        <option name="useColors">1</option>
+        <option name="rangeColors">["0x53a051","0xffa94d","0xdc4e41"]</option>
+        <option name="rangeValues">[5,15]</option>
+        <option name="underLabel">requiring action</option>
+      </single>
+    </panel>
+    <panel>
+      <title>SLA Breaches</title>
+      <single>
+        <search>
+          <query>`soc_alerts_normalized` | where status!="closed" | eval due=strptime(sla_due,"%Y-%m-%dT%H:%M:%SZ") | where now()&gt;due | stats dc(alert_id) as count</query>
+          <earliest>$time_range.earliest$</earliest>
+          <latest>$time_range.latest$</latest>
+        </search>
+        <option name="colorMode">block</option>
+        <option name="useColors">1</option>
+        <option name="rangeColors">["0x53a051","0xffa94d","0xdc4e41"]</option>
+        <option name="rangeValues">[1,5]</option>
+        <option name="underLabel">past SLA deadline</option>
+      </single>
+    </panel>
+    <panel>
+      <title>Avg Risk Score</title>
+      <single>
+        <search>
+          <query>`soc_alerts_normalized` | where status!="closed" | stats avg(risk_score) as s | eval s=round(s,0)</query>
+          <earliest>$time_range.earliest$</earliest>
+          <latest>$time_range.latest$</latest>
+        </search>
+        <option name="useColors">1</option>
+        <option name="rangeColors">["0x53a051","0xf8be34","0xdc4e41"]</option>
+        <option name="rangeValues">[50,75]</option>
+        <option name="underLabel">open alert risk avg</option>
+      </single>
+    </panel>
+  </row>
+
+  <!-- ─── Volume + MTTA ────────────────────────────────────────────────── -->
+  <row>
+    <panel>
+      <title>Alert Volume Over Time</title>
+      <chart>
+        <search>
+          <query>`soc_alerts_normalized` | eval _time=strptime(created_at,"%Y-%m-%dT%H:%M:%SZ") | timechart span=30m count by status</query>
+          <earliest>$time_range.earliest$</earliest>
+          <latest>$time_range.latest$</latest>
+        </search>
+        <option name="charting.chart">area</option>
+        <option name="charting.chart.stackMode">stacked</option>
+        <option name="charting.seriesColors">[0xdc4e41,0xffa94d,0x4dabf7,0x53a051]</option>
+        <option name="charting.legend.placement">bottom</option>
+      </chart>
+    </panel>
+    <panel>
+      <title>Mean Time to Acknowledge (min) by Analyst</title>
+      <table>
+        <search>
+          <query>| inputlookup soc_triage_audit | where action="triage_update"
+| eval triage_epoch=strptime(timestamp,"%Y-%m-%dT%H:%M:%SZ")
+| join type=left alert_id [| inputlookup soc_triage_seed_alerts.csv | eval created_epoch=strptime(created_at,"%Y-%m-%dT%H:%M:%SZ") | table alert_id created_epoch]
+| eval mtta_min=round((triage_epoch-created_epoch)/60,1)
+| where mtta_min&gt;=0
+| stats avg(mtta_min) as Avg_MTTA count as Actions by actor
+| eval Avg_MTTA=round(Avg_MTTA,1)
+| rename actor as Analyst
+| sort Avg_MTTA</query>
+          <earliest>$time_range.earliest$</earliest>
+          <latest>$time_range.latest$</latest>
+        </search>
+        <option name="count">15</option>
+        <option name="drilldown">none</option>
+      </table>
+    </panel>
+  </row>
+
+  <!-- ─── Leaderboard + Top Rules ──────────────────────────────────────── -->
+  <row>
+    <panel>
+      <title>Analyst Closure Leaderboard</title>
+      <chart>
+        <search>
+          <query>`soc_alerts_normalized` | where status="closed" | where "$filter_owner$"="*" OR owner="$filter_owner$" | stats count as Closed by owner | sort - Closed</query>
+          <earliest>$time_range.earliest$</earliest>
+          <latest>$time_range.latest$</latest>
+        </search>
+        <option name="charting.chart">bar</option>
+        <option name="charting.chart.orientation">horizontal</option>
+        <option name="charting.seriesColors">[0x53a051]</option>
+      </chart>
+    </panel>
+    <panel>
+      <title>Top Firing ESCU Detections</title>
+      <chart>
+        <search>
+          <query>`soc_alerts_normalized` | stats count by rule_name | sort - count | head 10</query>
+          <earliest>$time_range.earliest$</earliest>
+          <latest>$time_range.latest$</latest>
+        </search>
+        <option name="charting.chart">bar</option>
+        <option name="charting.chart.orientation">horizontal</option>
+        <option name="charting.seriesColors">[0x4dabf7]</option>
+      </chart>
+    </panel>
+  </row>
+
+  <!-- ─── Active Suppressions ──────────────────────────────────────────── -->
+  <row>
+    <panel>
+      <title>&#x1F6AB; Active Suppression Rules</title>
+      <table>
+        <search>
+          <query>| inputlookup soc_suppression_list | where active="true" | eval expiry_epoch=strptime(expiry,"%Y-%m-%dT%H:%M:%SZ") | where now()&lt;expiry_epoch | eval expires_in=round((expiry_epoch-now())/3600,1)." hrs" | table rule_name entity_pattern suppress_type reason created_by expiry expires_in | sort rule_name</query>
+          <earliest>-1m</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="count">20</option>
+        <option name="drilldown">none</option>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <html>
+        <div style="padding:8px 4px;border-top:1px solid #2c2c3a;display:flex;gap:24px;align-items:center;">
+          <span style="color:#4a4a5e;font-size:12px;">&#x1F5FA;&#xFE0F; Navigate:</span>
+          <a href="/app/soc_triage_app/triage_dashboard" style="color:#4dabf7;font-size:13px;text-decoration:none;">&#128203; Triage Queue</a>
+          <a href="/app/soc_triage_app/analyst_metrics" style="color:#4dabf7;font-size:13px;text-decoration:none;">&#128202; Analyst Metrics</a>
+          <a href="/app/soc_triage_app/suppression" style="color:#4dabf7;font-size:13px;text-decoration:none;">&#128683; Suppressions</a>
+          <a href="/app/soc_triage_app/overview" style="color:#4dabf7;font-size:13px;text-decoration:none;">&#128196; Overview</a>
+        </div>
+      </html>
+    </panel>
+  </row>
+
+</dashboard>

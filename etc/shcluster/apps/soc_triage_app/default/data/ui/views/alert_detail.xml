@@ -1,0 +1,314 @@
+<form version="1.1" theme="dark">
+  <label>Alert Detail &amp; Triage</label>
+  <description>Enrich, investigate, and submit triage decisions. All changes persist to KV Store with a full audit trail.</description>
+
+  <fieldset submitButton="true" autoRun="false">
+    <input type="text" token="alert_id" searchWhenChanged="true">
+      <label>Alert ID</label>
+      <default></default>
+    </input>
+  </fieldset>
+  <row>
+    <panel>
+      <html>
+        <style>
+          body,.appBackground,#view,#content,.main-content-body,.splunk-components,.shared-page-chrome,
+          .dashboard-body,.dashboard-row .dashboard-cell,.page-content{background-color:#1a1a24!important;color:#c7d0dd!important}
+          .dashboard-panel,.panel-body,.panel-head{background-color:#23232f!important;color:#c7d0dd!important;border-color:#3c3c4e!important}
+          .panel-head h3{color:#a9b7c6!important;font-size:13px!important;letter-spacing:.3px;}
+          thead th,.table th{background-color:#2c2c3a!important;color:#8be0f7!important;border-color:#3c3c4e!important;font-size:12px!important;}
+          .splunk-table tbody td,.table tbody td{color:#c7d0dd!important;background-color:#23232f!important;border-color:#3c3c4e!important;font-size:12px!important;}
+          .splunk-table tbody tr:nth-child(even) td{background-color:#1f1f2e!important}
+          .splunk-table tbody tr:hover td{background-color:#2a3a52!important;cursor:pointer;}
+          .fieldset,.dashboard-fieldset,.splunk-textinput input,.splunk-dropdown .btn,.btn-default,.control-group .controls input,select{background-color:#2c2c3a!important;color:#c7d0dd!important;border-color:#4a4a5e!important;}
+          .shared-appnav,.appbar,.navbar,.navbar-default{background-color:#13131a!important;border-bottom-color:#2a2a3a!important;}
+          .shared-appnav a,.navbar a{color:#8be0f7!important;}
+          .highcharts-plot-background,.highcharts-background{fill:#1f1f2e!important;}
+          .highcharts-axis-labels text,.highcharts-axis text,.highcharts-legend-item text{fill:#a9b7c6!important;}
+          .highcharts-grid-line{stroke:#2c2c3a!important;}
+          .shared-singlevalue .number{color:#8be0f7!important;}
+          .shared-description,.description{color:#868e96!important;font-size:12px!important;}
+          .splunk-list-accordion .accordion-heading a,.splunk-list-accordion .accordion-group{background:#23232f!important;color:#c7d0dd!important;border-color:#3c3c4e!important;}
+          ::-webkit-scrollbar{background:#1a1a24;width:6px;height:6px;}
+          ::-webkit-scrollbar-thumb{background:#3c3c4e;border-radius:3px;}
+        </style>
+      </html>
+    </panel>
+  </row>
+
+  <!-- ─── Alert Banner ─────────────────────────────────────────────────── -->
+  <row>
+    <panel>
+      <title>&#x1F6A8; Alert Summary</title>
+      <table>
+        <search>
+          <query>`soc_alerts_normalized` | where alert_id="$alert_id$"
+| eval Priority=case(severity="critical","&#x1F534; CRITICAL",severity="high","&#x1F7E0; HIGH",severity="medium","&#x1F7E1; MEDIUM",severity="low","&#x1F7E2; LOW",true(),"&#x26AA; unknown"),
+       _sla_due=strptime(sla_due,"%Y-%m-%dT%H:%M:%SZ"),
+       SLA=if(now()&gt;_sla_due,"&#x26A0;&#xFE0F; BREACHED ".round((now()-_sla_due)/60,0)." min ago","&#x2705; ".round((_sla_due-now())/60,0)." min remaining"),
+       Tier=case(tier_queue="t1","T1 &#x2014; Intake",tier_queue="t2","T2 &#x2014; Investigate",tier_queue="t3","T3 &#x2014; Hunt/Tune",true(),"T1 &#x2014; Intake"),
+       Owner=if(isnull(owner) OR owner="","&#x26A0;&#xFE0F; UNASSIGNED",owner)
+| rename alert_id as "Alert ID", rule_name as "Detection Rule", entity as Entity, risk_score as "Risk Score", status as Status, created_at as Created, triage_last_updated as "Last Triaged", data_source as Source
+| table "Alert ID" "Detection Rule" Entity Priority "Risk Score" Status Owner Tier SLA Created "Last Triaged" Source</query>
+          <earliest>-7d</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="count">1</option>
+        <option name="drilldown">none</option>
+      </table>
+    </panel>
+  </row>
+
+  <!-- ─── Quick Action Guide ───────────────────────────────────────────── -->
+  <row>
+    <panel>
+      <html>
+        <style>
+          .qa-bar{display:flex;gap:8px;flex-wrap:wrap;padding:10px 6px;align-items:center;background:#1e2535;border:1px solid #2a4a6b;border-radius:6px;}
+          .qa-lbl{color:#6c8ebf;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;white-space:nowrap;margin-right:4px;}
+          .qa-chip{padding:5px 12px;border-radius:4px;font-size:11px;font-weight:700;color:#fff;white-space:nowrap;}
+          .q1{background:#1864ab;} .q2{background:#2b8a3e;} .q3{background:#d9480f;} .q4{background:#862e9c;}
+          .qa-sep{color:#2a4a6b;font-size:18px;line-height:1;}
+        </style>
+        <div class="qa-bar">
+          <span class="qa-lbl">&#x26A1; Workflow</span>
+          <span class="qa-chip q1">&#x1F4E5; T1 Intake &#x2014; tier=t1 &#x2022; assign owner &#x2022; status=in_progress</span>
+          <span class="qa-sep">|</span>
+          <span class="qa-chip q2">&#x2705; False Positive &#x2014; status=closed &#x2022; notes=FP confirmed</span>
+          <span class="qa-sep">|</span>
+          <span class="qa-chip q3">&#x1F50D; Escalate T2 &#x2014; tier=t2 &#x2022; add investigation notes</span>
+          <span class="qa-sep">|</span>
+          <span class="qa-chip q4">&#x1F6A8; Escalate T3 &#x2014; tier=t3 &#x2022; add hunt/tune justification</span>
+        </div>
+      </html>
+    </panel>
+  </row>
+
+  <!-- ─── Triage Form ───────────────────────────────────────────────────── -->
+  <row>
+    <panel>
+      <title>&#x270F;&#xFE0F; Triage Decision &#x2014; Set fields then click Submit</title>
+      <input type="dropdown" token="new_status" searchWhenChanged="false">
+        <label>Status &#x2014; pick to enable save</label>
+        <choice value="">&#x2014; Select a status to begin &#x2014;</choice>
+        <choice value="new">&#x1F7E1; New</choice>
+        <choice value="in_progress">&#x1F7E0; In Progress</choice>
+        <choice value="closed">&#x1F7E2; Closed / Resolved</choice>
+        <default></default>
+      </input>
+      <input type="dropdown" token="new_tier" searchWhenChanged="false">
+        <label>Tier Queue</label>
+        <choice value="t1">T1 &#x2014; Intake &amp; Initial Triage</choice>
+        <choice value="t2">T2 &#x2014; Deep Investigation</choice>
+        <choice value="t3">T3 &#x2014; Threat Hunt / Tune / Suppress</choice>
+        <default>t1</default>
+      </input>
+      <input type="dropdown" token="new_owner" searchWhenChanged="false">
+        <label>Assign To</label>
+        <populatingSearch fieldForLabel="display_label" fieldForValue="username">
+          | inputlookup soc_analyst_roster | where active="true"
+          | eval display_label=display_name." [".tier."]"
+          | table username display_label
+          | sort display_label
+        </populatingSearch>
+        <choice value="">&#x2014; Unassigned &#x2014;</choice>
+        <default></default>
+      </input>
+      <input type="dropdown" token="new_severity" searchWhenChanged="false">
+        <label>Override Severity</label>
+        <choice value="critical">&#x1F534; Critical</choice>
+        <choice value="high">&#x1F7E0; High</choice>
+        <choice value="medium">&#x1F7E1; Medium</choice>
+        <choice value="low">&#x1F7E2; Low</choice>
+        <default>medium</default>
+      </input>
+      <input type="text" token="new_notes" searchWhenChanged="false">
+        <label>Notes / Escalation Reason / Ticket #</label>
+        <default></default>
+      </input>
+      <table id="kv_triage_write" depends="$new_status$">
+        <title>Save Confirmation</title>
+        <search>
+          <query>| makeresults
+| eval _key="$alert_id$", alert_id="$alert_id$", status="$new_status$", owner="$new_owner$",
+       severity="$new_severity$", tier_queue="$new_tier$", notes="$new_notes$",
+       escalated_by=if("$new_tier$"!="t1","$env:user$",null()),
+       escalated_at=if("$new_tier$"!="t1",strftime(now(),"%Y-%m-%dT%H:%M:%SZ"),null()),
+       last_updated=strftime(now(),"%Y-%m-%dT%H:%M:%SZ")
+| fields - _time
+| outputlookup append=false soc_alert_triage
+| eval result="&#x2705; Saved &#x2014; ".alert_id." | status=".status." | tier=".tier_queue." | owner=".owner
+| table result</query>
+          <earliest>-1m</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="count">1</option>
+      </table>
+      <table id="kv_audit_write" depends="$new_status$">
+        <title>Audit Confirmation</title>
+        <search>
+          <query>| makeresults
+| eval alert_id="$alert_id$", action="triage_update", actor="$env:user$",
+       timestamp=strftime(now(),"%Y-%m-%dT%H:%M:%SZ"),
+       after_status="$new_status$",
+       comment="tier=$new_tier$ | owner=$new_owner$ | $new_notes$"
+| fields - _time
+| outputlookup append=true soc_triage_audit
+| eval result="&#x1F4CB; Audit logged by $env:user$"
+| table result</query>
+          <earliest>-1m</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="count">1</option>
+      </table>
+    </panel>
+  </row>
+
+  <!-- ─── Audit Trail ───────────────────────────────────────────────────── -->
+  <row>
+    <panel>
+      <title>&#x1F4CB; Audit History &#x2014; All actions on this alert</title>
+      <table>
+        <search>
+          <query>| inputlookup soc_triage_audit | where alert_id="$alert_id$" | sort - timestamp | table timestamp actor action after_status comment</query>
+          <earliest>-30d</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="count">20</option>
+        <option name="drilldown">none</option>
+      </table>
+    </panel>
+    <panel>
+      <title>&#x1F4CC; Prior Alerts on Same Entity (30d)</title>
+      <table>
+        <search>
+          <query>`soc_alerts_normalized`
+| eval is_focal=if(alert_id="$alert_id$",1,0)
+| eventstats values(eval(if(is_focal=1,entity,null()))) as focal_entity
+| where is_focal=0 AND entity=focal_entity AND isnotnull(focal_entity)
+| eval Priority=case(severity="critical","&#x1F534;",severity="high","&#x1F7E0;",severity="medium","&#x1F7E1;",true(),"&#x1F7E2;")
+| sort - created_at | head 15
+| table alert_id rule_name entity Priority risk_score status owner created_at</query>
+          <earliest>-30d</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="count">10</option>
+        <option name="drilldown">row</option>
+        <drilldown>
+          <link target="_self">/app/soc_triage_app/alert_detail?form.alert_id=$row.alert_id$</link>
+        </drilldown>
+      </table>
+    </panel>
+  </row>
+
+  <!-- ─── ES Notable Events ─────────────────────────────────────────────── -->
+  <row>
+    <panel>
+      <title>&#x1F4E1; Raw ES Notable Events (index=notable)</title>
+      <table>
+        <search>
+          <query>index=notable orig_sid="$alert_id$" OR rule_id="$alert_id$"
+| eval age_min=round((now()-_time)/60,0)
+| table _time rule_name user dest src urgency status search_name age_min
+| sort - _time</query>
+          <earliest>-7d</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="count">20</option>
+        <option name="drilldown">none</option>
+      </table>
+    </panel>
+  </row>
+
+  <!-- ─── Asset + User Risk Enrichment ─────────────────────────────────── -->
+  <row>
+    <panel>
+      <title>&#x1F3E2; Asset Criticality (SOC KV)</title>
+      <table>
+        <search>
+          <query>| makeresults | eval asset="$alert_id$"
+| lookup soc_asset_criticality entity as asset OUTPUT criticality, asset_type, asset_owner, business_unit, notes as asset_notes
+| eval Criticality=coalesce(criticality,"&#x26A0;&#xFE0F; not in KV"),
+       Asset_Owner=coalesce(asset_owner,"unknown"),
+       Asset_Type=coalesce(asset_type,"unknown"),
+       Source=if(isnotnull(criticality),"&#x1F4BE; SOC KV soc_asset_criticality","&#x26A0;&#xFE0F; add asset to soc_asset_criticality KV")
+| table asset Criticality Asset_Type Asset_Owner business_unit asset_notes Source</query>
+          <earliest>-1m</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="count">5</option>
+      </table>
+    </panel>
+    <panel>
+      <title>&#x1F464; User Risk Score (ES Risk Framework &#x2192; SOC KV fallback)</title>
+      <table>
+        <search>
+          <query>| makeresults | eval risk_object="$alert_id$"
+| append [search index=risk risk_object="$alert_id$" earliest=-7d | stats max(risk_score) as es_risk dc(source) as detections values(source) as risk_sources by risk_object | head 1]
+| lookup soc_user_risk user as risk_object OUTPUT risk_score as soc_risk, risk_level, risk_reasons, last_updated
+| eval Risk_Score=coalesce(es_risk,soc_risk,0),
+       Risk_Level=coalesce(risk_level,case(Risk_Score&gt;=75,"&#x1F534; HIGH",Risk_Score&gt;=50,"&#x1F7E0; MEDIUM",true(),"&#x1F7E2; LOW")),
+       Source=case(isnotnull(es_risk),"&#x2705; ES Risk Framework",isnotnull(soc_risk),"&#x1F4BE; SOC KV Lookup",true(),"&#x26A0;&#xFE0F; none")
+| where risk_object="$alert_id$" | dedup risk_object
+| table risk_object Risk_Score Risk_Level Source detections risk_sources risk_reasons last_updated</query>
+          <earliest>-7d</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="count">5</option>
+      </table>
+    </panel>
+  </row>
+
+  <!-- ─── Identity + Threat Intel Enrichment ───────────────────────────── -->
+  <row>
+    <panel>
+      <title>&#x1F464; User / IAM Identity Context (SOC KV)</title>
+      <table>
+        <search>
+          <query>| makeresults | eval user="$alert_id$"
+| lookup soc_user_risk user OUTPUT risk_score, risk_level, risk_reasons, last_updated as risk_last_updated
+| lookup soc_asset_criticality entity as user OUTPUT asset_type, business_unit, asset_owner as account_owner
+| eval Risk_Score=coalesce(risk_score,0),
+       Risk_Level=coalesce(risk_level,case(Risk_Score&gt;=75,"&#x1F534; HIGH",Risk_Score&gt;=50,"&#x1F7E0; MEDIUM",true(),"&#x1F7E2; LOW")),
+       Account_Owner=coalesce(account_owner,"unknown"),
+       Source=case(isnotnull(risk_score),"&#x1F4BE; SOC KV soc_user_risk",true(),"&#x26A0;&#xFE0F; not in KV")
+| table user Risk_Score Risk_Level Account_Owner business_unit asset_type risk_reasons risk_last_updated Source</query>
+          <earliest>-1m</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="count">5</option>
+      </table>
+    </panel>
+    <panel>
+      <title>&#x1F9E0; Threat Intel Match (KV + Live index=threatlists)</title>
+      <table>
+        <search>
+          <query>| inputlookup soc_threat_intel | search ioc="$alert_id$" | eval Match="&#x1F4BE; KV MATCH" | table ioc ioc_type category confidence source expiry Match
+| append [search index=threatlists (ip="$alert_id$" OR domain="$alert_id$" OR url="$alert_id$") earliest=-30d | stats count values(category) as categories values(source) as sources by ip domain url | eval ioc=coalesce(ip,domain,url), Match="&#x26A1; LIVE TI HIT", ioc_type="ip/domain/url" | table ioc ioc_type categories sources Match]
+| dedup ioc</query>
+          <earliest>-30d</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="count">10</option>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <html>
+        <div style="padding:8px 4px;border-top:1px solid #2c2c3a;display:flex;gap:24px;align-items:center;">
+          <a href="/app/soc_triage_app/triage_dashboard" style="color:#4dabf7;font-size:13px;text-decoration:none;">&#8592; Triage Queue</a>
+          <a href="/app/soc_triage_app/analyst_metrics" style="color:#4dabf7;font-size:13px;text-decoration:none;">&#128202; Analyst Metrics</a>
+          <a href="/app/soc_triage_app/suppression" style="color:#4dabf7;font-size:13px;text-decoration:none;">&#128683; Suppressions</a>
+        </div>
+      </html>
+    </panel>
+  </row>
+
+</form>

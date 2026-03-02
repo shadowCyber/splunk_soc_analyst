@@ -1,0 +1,6 @@
+alert_id,status,owner,severity,risk_score,sla_due,source,rule_name,entity,notes,created_at
+ALT-1001,new,,high,88,2026-02-27T18:30:00Z,edr,Suspicious PowerShell,user:jsmith,,2026-02-27T16:55:00Z
+ALT-1002,open,analyst1,medium,62,2026-02-27T20:00:00Z,proxy,Impossible Travel,user:adoe,reviewing sign-in telemetry,2026-02-27T16:20:00Z
+ALT-1003,new,,critical,95,2026-02-27T17:20:00Z,siem,Privileged Group Change,user:svc-admin,,2026-02-27T15:10:00Z
+ALT-1004,open,analyst2,low,35,2026-02-27T22:00:00Z,email,Malicious Attachment,host:finance-lt-12,sandbox pending,2026-02-27T14:45:00Z
+ALT-1005,closed,analyst1,medium,55,2026-02-27T15:30:00Z,ids,Port Scan,src:10.2.10.3,false positive approved,2026-02-27T12:01:00Z

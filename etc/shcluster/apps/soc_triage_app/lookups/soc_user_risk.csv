@@ -1,0 +1,5 @@
+user,risk_score,risk_level,risk_reasons,last_updated
+jsmith,72,high,"Suspicious PowerShell execution; off-hours login from new country",2026-02-27T12:00:00Z
+adoe,41,medium,"Impossible travel event; multiple failed MFA",2026-02-27T10:30:00Z
+svc-admin,88,critical,"Privileged group change; interactive login on non-admin workstation",2026-02-27T15:00:00Z
+finance-lt-12,25,low,"Single phishing click last 30d",2026-02-25T08:00:00Z

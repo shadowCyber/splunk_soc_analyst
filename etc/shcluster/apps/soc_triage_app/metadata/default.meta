@@ -1,0 +1,63 @@
+[views]
+access = read : [ * ], write : [ admin, power ]
+export = app
+
+[savedsearches]
+access = read : [ * ], write : [ admin, power ]
+export = app
+
+[macros]
+access = read : [ * ], write : [ admin, power ]
+export = app
+
+[transforms]
+access = read : [ * ], write : [ admin, power ]
+export = app
+
+[transforms/soc_alert_triage]
+access = read : [ * ], write : [ admin, power ]
+export = app
+
+[transforms/soc_triage_audit]
+access = read : [ * ], write : [ admin, power ]
+export = app
+
+[collections/soc_alert_triage]
+access = read : [ * ], write : [ admin, power ]
+export = app
+
+[collections/soc_triage_audit]
+access = read : [ * ], write : [ admin, power ]
+export = app
+
+[transforms/soc_suppression_list]
+access = read : [ * ], write : [ admin, power ]
+export = app
+
+[collections/soc_suppression_list]
+access = read : [ soc_analyst, soc_lead, admin ], write : [ soc_lead, admin ]
+export = app
+
+[collections/soc_asset_criticality]
+access = read : [ * ], write : [ soc_lead, admin ]
+export = app
+
+[transforms/soc_asset_criticality]
+access = read : [ * ], write : [ soc_lead, admin ]
+export = app
+
+[collections/soc_user_risk]
+access = read : [ * ], write : [ soc_lead, admin ]
+export = app
+
+[transforms/soc_user_risk]
+access = read : [ * ], write : [ soc_lead, admin ]
+export = app
+
+[collections/soc_threat_intel]
+access = read : [ * ], write : [ soc_lead, admin ]
+export = app
+
+[transforms/soc_threat_intel]
+access = read : [ * ], write : [ soc_lead, admin ]
+export = app
