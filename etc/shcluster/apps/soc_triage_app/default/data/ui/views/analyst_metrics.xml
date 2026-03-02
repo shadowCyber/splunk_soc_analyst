@@ -1,6 +1,6 @@
 <dashboard version="1.1" theme="dark">
-  <label>Analyst Metrics &amp; Shift Summary</label>
-  <description>SOC performance KPIs, MTTA, analyst leaderboard, and detection coverage for the selected shift window.</description>
+  <label>Analyst Metrics</label>
+  <description>Cyber Defense performance KPIs, MTTA, analyst leaderboard, and detection coverage for the selected shift window.</description>
   <refresh>300</refresh>
 
   <fieldset submitButton="false" autoRun="true">

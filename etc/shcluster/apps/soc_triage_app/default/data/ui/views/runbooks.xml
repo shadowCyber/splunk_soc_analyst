@@ -1,6 +1,6 @@
 <form version="1.1" theme="dark">
-  <label>SOC Runbooks</label>
-  <description>Browse, create, and manage SOC playbooks and runbooks. Paste Markdown content directly — rendered in real-time.</description>
+  <label>Runbooks</label>
+  <description>Browse, create, and manage Cyber Defense playbooks and runbooks. Paste Markdown content directly — rendered in real-time.</description>
 
   <fieldset submitButton="false" autoRun="true">
     <input type="dropdown" token="rb_category_filter" searchWhenChanged="true">

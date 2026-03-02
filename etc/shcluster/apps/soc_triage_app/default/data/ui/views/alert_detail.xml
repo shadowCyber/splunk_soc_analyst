@@ -1,5 +1,5 @@
 <form version="1.1" theme="dark">
-  <label>Alert Detail &amp; Triage</label>
+  <label>Alert Detail</label>
   <description>Enrich, investigate, and submit triage decisions. All changes persist to KV Store with a full audit trail.</description>
 
   <fieldset submitButton="true" autoRun="false">

@@ -1,6 +1,6 @@
 <form version="1.1" theme="dark">
-  <label>Suppression &amp; False Positive Manager</label>
-  <description>Create and manage suppression rules. Active rules auto-close matching alerts via the SOC Auto-Close scheduled search every 15 minutes.</description>
+  <label>Suppression Manager</label>
+  <description>Create and manage suppression rules. Active rules auto-close matching alerts via the Cyber Defense Auto-Close scheduled search every 15 minutes.</description>
   <row>
     <panel>
       <html>
