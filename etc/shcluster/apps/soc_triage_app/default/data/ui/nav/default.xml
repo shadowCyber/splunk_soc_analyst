@@ -4,5 +4,4 @@
   <view name="alert_detail">Alert Detail</view>
   <view name="analyst_metrics">Analyst Metrics</view>
   <view name="suppression">Suppression Manager</view>
-  <view name="runbooks">Runbooks</view>
 </nav>

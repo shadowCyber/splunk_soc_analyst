@@ -116,7 +116,6 @@
                 <li><b>Alert Detail</b> &#x2014; Per-alert enrichment and triage form</li>
                 <li><b>Analyst Metrics</b> &#x2014; KPIs, MTTA, leaderboard, volume trends</li>
                 <li><b>Suppression Manager</b> &#x2014; Create / manage / preview suppression rules</li>
-                <li><b>Runbooks</b> &#x2014; Browse, create, and import Markdown playbooks</li>
               </ul>
             </div>
 
@@ -155,8 +154,6 @@
             <a class="ov-btn secondary" href="/app/soc_triage_app/analyst_metrics">&#x1F4CA; Analyst Metrics</a>
             &#160;
             <a class="ov-btn secondary" href="/app/soc_triage_app/suppression">&#x1F6AB; Suppression Manager</a>
-            &#160;
-            <a class="ov-btn secondary" href="/app/soc_triage_app/runbooks">&#x1F4D6; Runbooks</a>
           </div>
 
         </div>
